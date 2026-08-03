@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "ENEP-BERR",
+  "version": "1.5",
+  "description": "Limiteur de Shorts et Reels",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "*://*.youtube.com/*",
+    "*://*.instagram.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["*://*.youtube.com/*"],
+      "js": ["content-youtube.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["*://*.instagram.com/*"],
+      "js": ["content-instagram.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "enep-berr@extension.local"
+    }
+  }
+}
