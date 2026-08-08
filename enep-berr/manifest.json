@@ -21,6 +21,11 @@
       "run_at": "document_start"
     },
     {
+      "matches": ["*://*.youtube.com/watch*"],
+      "js": ["content-youtube-notes.js"],
+      "run_at": "document_start"
+    },
+    {
       "matches": ["*://*.instagram.com/*"],
       "js": ["content-instagram.js"],
       "run_at": "document_start"

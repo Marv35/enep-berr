@@ -1,0 +1,372 @@
+/* ============================================================
+   ENEP-BERR — options page
+   Direction : Frutiger Aero, vert, sur fond sombre
+   Verre glacé, chrome, bulles, reflets glossy — optimisme "Web 2.0"
+   posé sur une nuit d'aquarium plutôt qu'un ciel de bureau clair.
+   ============================================================ */
+
+:root {
+  --bg-0: #05130f;
+  --bg-1: #0a2a20;
+  --bg-2: #0f3d2c;
+
+  --glass: rgba(255, 255, 255, 0.055);
+  --glass-strong: rgba(255, 255, 255, 0.14);
+  --glass-border: rgba(178, 255, 220, 0.28);
+
+  --accent: #33e6a0;
+  --accent-bright: #a8ffdd;
+  --accent-deep: #0a7a52;
+
+  --text-hi: #eafff5;
+  --text-lo: #9fd0bd;
+
+  --shadow-deep: rgba(0, 20, 14, 0.65);
+
+  --font-display: 'Baloo 2', 'Segoe UI', sans-serif;
+  --font-body: 'Inter', 'Segoe UI', sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-body);
+  color: var(--text-hi);
+  background:
+    radial-gradient(ellipse 90% 60% at 50% -10%, #133d2c 0%, transparent 60%),
+    radial-gradient(ellipse 70% 50% at 85% 100%, #0d2f22 0%, transparent 55%),
+    linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 55%, var(--bg-0) 100%);
+  overflow: hidden;
+  position: relative;
+}
+
+/* ---------- Titre : fixé en haut de page ---------- */
+
+.top-brand {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 34px 20px 0;
+}
+
+/* ---------- Zone centrale : le panneau y est vertical.+ horizontalement centré ---------- */
+
+.stage {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 20px 40px;
+}
+
+/* ---------- Scène de fond : lueurs + bulles ---------- */
+
+.aqua-scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.35;
+}
+.glow-a {
+  width: 480px; height: 480px;
+  left: -120px; top: -140px;
+  background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+}
+.glow-b {
+  width: 420px; height: 420px;
+  right: -140px; bottom: -160px;
+  background: radial-gradient(circle, #1fd08c 0%, transparent 70%);
+  opacity: 0.25;
+}
+
+.bubble {
+  position: absolute;
+  bottom: -60px;
+  left: var(--x);
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 25%, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.35) 18%, rgba(180,255,220,0.12) 45%, rgba(180,255,220,0.04) 70%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow:
+    inset 0 0 6px rgba(255,255,255,0.35),
+    0 0 10px rgba(120, 255, 200, 0.15);
+  animation: rise var(--dur) ease-in var(--delay) infinite;
+}
+
+@keyframes rise {
+  0%   { transform: translateY(0) translateX(0); opacity: 0; }
+  8%   { opacity: 0.9; }
+  50%  { transform: translateY(-52vh) translateX(12px); }
+  92%  { opacity: 0.6; }
+  100% { transform: translateY(-104vh) translateX(-6px); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bubble { animation: none; display: none; }
+}
+
+/* ---------- Carte de verre ---------- */
+
+.card {
+  position: relative;
+  z-index: 1;
+  width: min(380px, calc(100vw - 48px));
+  padding: 34px 30px 28px;
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, var(--glass-strong) 0%, var(--glass) 40%, rgba(255,255,255,0.02) 100%);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  box-shadow:
+    0 30px 60px var(--shadow-deep),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.25);
+}
+
+/* liseré chromé du haut, signature "aero" */
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 14px; right: 14px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.85), transparent);
+  border-radius: 50%;
+}
+
+.drop-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.35));
+}
+
+.brand-text h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: 0.2px;
+  background: linear-gradient(180deg, #ffffff 0%, var(--accent-bright) 55%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.15);
+}
+
+.tagline {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  color: var(--text-lo);
+  letter-spacing: 0.2px;
+}
+
+.divider {
+  height: 1px;
+  margin: 22px 0 20px;
+  background: linear-gradient(90deg, transparent, var(--glass-border), transparent);
+}
+
+.field label {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 14.5px;
+  color: var(--text-hi);
+  margin-bottom: 10px;
+}
+
+.hint {
+  display: block;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--text-lo);
+  margin-top: 3px;
+}
+
+/* ---------- Interrupteur "blocage total", même finition verre/chrome ---------- */
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.toggle-row label {
+  margin-bottom: 0;
+  flex: 1;
+}
+
+.aero-switch {
+  flex: none;
+  position: relative;
+  width: 52px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  cursor: pointer;
+  background: rgba(3, 20, 15, 0.6);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.aero-switch .knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ffffff 0%, #cdeee1 100%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.aero-switch[aria-checked="true"] {
+  background: linear-gradient(180deg, var(--accent-bright) 0%, var(--accent) 55%, var(--accent-deep) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 0 14px rgba(51, 230, 160, 0.5);
+}
+.aero-switch[aria-checked="true"] .knob {
+  transform: translateX(22px);
+}
+
+.aero-switch:focus-visible {
+  outline: 2px solid var(--accent-bright);
+  outline-offset: 3px;
+}
+
+/* ---------- Stepper glossy ---------- */
+
+.stepper {
+  display: flex;
+  align-items: stretch;
+  height: 52px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(3, 20, 15, 0.55);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.45);
+}
+
+.stepper input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--text-hi);
+  background: transparent;
+  -moz-appearance: textfield;
+}
+.stepper input::-webkit-outer-spin-button,
+.stepper input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.step-btn {
+  flex: none;
+  width: 44px;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: #06231a;
+  background: linear-gradient(180deg, var(--accent-bright) 0%, var(--accent) 55%, var(--accent-deep) 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -3px 4px rgba(0,0,0,0.18);
+  transition: filter 0.15s ease, transform 0.1s ease;
+}
+.step-btn:hover { filter: brightness(1.08); }
+.step-btn:active { transform: scale(0.94); }
+.step-btn:focus-visible,
+.stepper input:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: -2px; }
+
+/* ---------- Bouton Enregistrer, effet chrome + reflet balayant ---------- */
+
+.save-btn {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin-top: 26px;
+  padding: 14px 18px;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15.5px;
+  letter-spacing: 0.3px;
+  color: #06231a;
+  background: linear-gradient(180deg, var(--accent-bright) 0%, var(--accent) 50%, var(--accent-deep) 100%);
+  box-shadow:
+    0 10px 24px rgba(10, 122, 82, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -4px 6px rgba(0, 0, 0, 0.2);
+  transition: transform 0.12s ease, box-shadow 0.2s ease;
+}
+.save-btn span { position: relative; z-index: 1; }
+
+.save-btn::after {
+  content: "";
+  position: absolute;
+  top: 0; left: -60%;
+  width: 40%; height: 100%;
+  background: linear-gradient(115deg, transparent 0%, rgba(255,255,255,0.75) 50%, transparent 100%);
+  transform: skewX(-20deg);
+  transition: left 0.6s ease;
+}
+.save-btn:hover::after { left: 130%; }
+
+.save-btn:hover {
+  box-shadow:
+    0 12px 28px rgba(10, 122, 82, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -4px 6px rgba(0, 0, 0, 0.2);
+}
+.save-btn:active { transform: translateY(1px) scale(0.99); }
+.save-btn:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 3px; }
+
+.status {
+  min-height: 18px;
+  margin: 14px 0 0;
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--accent-bright);
+  opacity: 0;
+  transform: translateY(-2px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.status.show { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 420px) {
+  .card { padding: 28px 22px 24px; }
+}
