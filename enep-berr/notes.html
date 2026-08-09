@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ENEP-BERR — Mes notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="notes.css">
+</head>
+<body>
+
+  <div class="aqua-scene" aria-hidden="true">
+    <div class="glow glow-a"></div>
+    <div class="glow glow-b"></div>
+    <span class="bubble" style="--x:8%;  --size:34px; --dur:14s; --delay:0s;"></span>
+    <span class="bubble" style="--x:27%; --size:22px; --dur:12s; --delay:3s;"></span>
+    <span class="bubble" style="--x:58%; --size:28px; --dur:15s; --delay:2.2s;"></span>
+    <span class="bubble" style="--x:79%; --size:40px; --dur:17s; --delay:1.8s;"></span>
+    <span class="bubble" style="--x:93%; --size:20px; --dur:13s; --delay:0.9s;"></span>
+  </div>
+
+  <header class="top-brand">
+    <span class="drop-icon" aria-hidden="true">
+      <svg viewBox="0 0 48 48" width="40" height="40">
+        <defs>
+          <linearGradient id="dropFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#a8ffdd"/>
+            <stop offset="55%" stop-color="#33e6a0"/>
+            <stop offset="100%" stop-color="#0a7a52"/>
+          </linearGradient>
+        </defs>
+        <path d="M24 3C24 3 9 21 9 31.5C9 40.06 15.94 46 24 46C32.06 46 39 40.06 39 31.5C39 21 24 3 24 3Z" fill="url(#dropFill)"/>
+        <ellipse cx="18.5" cy="24" rx="4.5" ry="7" fill="#ffffff" opacity="0.55"/>
+      </svg>
+    </span>
+    <div class="brand-text">
+      <h1>Mes notes</h1>
+      <p class="tagline">Ce que tu as retenu, vidéo par vidéo</p>
+    </div>
+  </header>
+
+  <div class="stage notes-stage">
+    <main class="notes-panel">
+
+      <div id="emptyState" class="empty-state" hidden>
+        <p>Aucune note pour l'instant.</p>
+        <p class="hint">Elle apparaîtra ici dès que tu en valides une sur YouTube, une minute avant la fin d'une vidéo.</p>
+      </div>
+
+      <ul id="notesList" class="notes-list"></ul>
+
+    </main>
+  </div>
+
+  <script src="notes.js"></script>
+</body>
+</html>

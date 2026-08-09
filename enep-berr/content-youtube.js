@@ -1,145 +1,158 @@
-// Actif uniquement sur les vidéos YouTube classiques (/watch?v=...), jamais sur les Shorts
+// --- RÉGLAGES (chargés depuis la page d'options) ---
+const DEFAULT_MAX_SHORTS_PER_DAY = 10;
 
-const SECONDES_AVANT_FIN = 60;
+let maxShortsPerDay = DEFAULT_MAX_SHORTS_PER_DAY;
+let blockShortsEnabled = false;
 
-let currentVideoId = null;
-let noteDejaProposee = false;
-let currentVideo = null;
-
-function getVideoId() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get('v');
-}
-
-function estPageVideo() {
-  return window.location.pathname === '/watch' && !!getVideoId();
-}
-
-function detacherVideo() {
-  if (currentVideo) {
-    currentVideo.removeEventListener('timeupdate', onTimeUpdate);
-    currentVideo = null;
-  }
-}
-
-function fermerPostit() {
-  const postit = document.getElementById('enep-postit');
-  if (postit) postit.remove();
-}
-
-function reinitialiserPourNouvelleVideo() {
-  const videoId = getVideoId();
-  if (videoId !== currentVideoId) {
-    currentVideoId = videoId;
-    noteDejaProposee = false;
-    detacherVideo();
-    fermerPostit(); // au cas où un post-it de la vidéo précédente traînerait encore
-  }
-}
-
-function attacherVideo() {
-  if (!estPageVideo()) {
-    detacherVideo();
-    return;
-  }
-  const video = document.querySelector('video.html5-main-video') || document.querySelector('video');
-  if (!video || video === currentVideo) return;
-
-  detacherVideo();
-  currentVideo = video;
-  currentVideo.addEventListener('timeupdate', onTimeUpdate);
-}
-
-function onTimeUpdate() {
-  if (noteDejaProposee) return;
-  if (!currentVideo || !currentVideo.duration || Number.isNaN(currentVideo.duration)) return;
-
-  // Vidéo trop courte pour qu'"1 minute avant la fin" ait un sens -> on n'affiche rien
-  if (currentVideo.duration < SECONDES_AVANT_FIN + 10) return;
-
-  const tempsRestant = currentVideo.duration - currentVideo.currentTime;
-  if (tempsRestant <= SECONDES_AVANT_FIN) {
-    noteDejaProposee = true;
-    afficherPostIt();
-  }
-}
-
-// --- Post-it ---
-
-function afficherPostIt() {
-  if (document.getElementById('enep-postit')) return;
-
-  const postit = document.createElement('div');
-  postit.id = 'enep-postit';
-  postit.style.cssText = `
-    position: fixed;
-    top: 20%;
-    right: 5%;
-    width: 300px;
-    background: #fffa8d;
-    box-shadow: 2px 4px 10px rgba(0,0,0,0.3);
-    padding: 15px;
-    z-index: 999999;
-    font-family: sans-serif;
-    border-radius: 4px;
-  `;
-
-  postit.innerHTML = `
-    <button id="enep-postit-close" aria-label="Fermer" style="
-      position: absolute; top: 6px; right: 8px;
-      border: none; background: transparent;
-      font-size: 16px; line-height: 1; cursor: pointer; color: #555;">✕</button>
-    <h3 style="margin: 0 0 8px; color: #333; padding-right: 20px;">Qu'as-tu retenu ? 🧠</h3>
-    <textarea id="enep-postit-text" rows="4" style="width: 100%; margin-bottom: 10px; box-sizing: border-box;"
-      placeholder="écris un résumé rapide, ou ferme si c'est juste de la musique..."></textarea>
-    <button id="enep-postit-save" style="background: #333; color: #fff; border: none; padding: 5px 10px; cursor: pointer; border-radius: 3px;">Valider</button>
-  `;
-
-  document.body.appendChild(postit);
-
-  document.getElementById('enep-postit-close').addEventListener('click', () => {
-    postit.remove();
+function loadSettings() {
+  return browser.storage.local.get({
+    maxShorts: DEFAULT_MAX_SHORTS_PER_DAY,
+    blockShorts: false
+  }).then((result) => {
+    maxShortsPerDay = result.maxShorts;
+    blockShortsEnabled = result.blockShorts;
   });
+}
 
-  document.getElementById('enep-postit-save').addEventListener('click', () => {
-    const text = document.getElementById('enep-postit-text').value.trim();
+// Réagit immédiatement si les réglages changent pendant que YouTube est ouvert
+browser.storage.onChanged.addListener((changes, area) => {
+  if (area !== "local") return;
 
-    // Rien écrit (ex: c'était de la musique) -> on ferme simplement, pas de sauvegarde
-    if (!text) {
-      postit.remove();
+  if (changes.maxShorts) {
+    maxShortsPerDay = changes.maxShorts.newValue;
+  }
+  if (changes.blockShorts) {
+    blockShortsEnabled = changes.blockShorts.newValue;
+    // Si on vient d'activer le blocage total et qu'on est déjà sur un Short, on sort tout de suite
+    if (blockShortsEnabled && window.location.pathname.startsWith("/shorts/")) {
+      window.location.href = "https://www.youtube.com/";
+      return;
+    }
+  }
+  hideShortsForToday();
+});
+
+// --- GESTION DU STOCKAGE QUOTIDIEN (compteur local, par jour) ---
+function getTodayDateString() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function getDailyData() {
+  const today = getTodayDateString();
+  let stored = {};
+  try {
+    stored = JSON.parse(localStorage.getItem('enep_daily_shorts') || '{}');
+  } catch (e) {
+    stored = {};
+  }
+
+  if (stored.date !== today) {
+    const newData = { date: today, count: 0 };
+    localStorage.setItem('enep_daily_shorts', JSON.stringify(newData));
+    return newData;
+  }
+  return stored;
+}
+
+function incrementDailyCount() {
+  const data = getDailyData();
+  data.count += 1;
+  localStorage.setItem('enep_daily_shorts', JSON.stringify(data));
+  return data.count;
+}
+
+// --- MASQUAGE DES SHORTS (blocage total OU quota du jour atteint) ---
+function hideShortsForToday() {
+  try {
+    const dailyData = getDailyData();
+    const shouldHide = blockShortsEnabled || dailyData.count >= maxShortsPerDay;
+
+    // Masque les carrousels / étagères
+    document.querySelectorAll('ytd-rich-shelf-renderer[is-shorts], ytd-reel-shelf-renderer')
+      .forEach(el => el.style.display = shouldHide ? 'none' : '');
+
+    // Masque le bouton dans le menu latéral
+    document.querySelectorAll('a[title="Shorts"]').forEach(link => {
+      const parent = link.closest('ytd-guide-entry-renderer, ytd-mini-guide-entry-renderer');
+      if (parent) parent.style.display = shouldHide ? 'none' : '';
+    });
+  } catch (err) {
+    console.error('[ENEP-BERR] Erreur masquage:', err);
+  }
+}
+
+// --- DÉMARRAGE SÉCURISÉ DE L'OBSERVER ---
+function startObserver() {
+  if (document.body) {
+    const observer = new MutationObserver(hideShortsForToday);
+    observer.observe(document.body, { childList: true, subtree: true });
+  } else {
+    document.addEventListener("DOMContentLoaded", startObserver);
+  }
+}
+
+// --- LOGIQUE BASÉE SUR L'URL ---
+let lastUrl = location.href;
+let lastCountedShort = null; // évite de compter deux fois le même Short
+
+function checkUrlChange() {
+  const currentUrl = location.href;
+  if (currentUrl !== lastUrl) {
+    lastUrl = currentUrl;
+    onUrlChange();
+  }
+}
+
+function onUrlChange() {
+  if (window.location.pathname.startsWith("/shorts/")) {
+
+    // 1. Blocage total activé -> redirection immédiate, sans même regarder le quota
+    if (blockShortsEnabled) {
+      console.log("[ENEP-BERR] Shorts bloqués (option activée). Redirection...");
+      window.location.href = "https://www.youtube.com/";
       return;
     }
 
-    const videoId = getVideoId();
-    const titre = document.title.replace(' - YouTube', '');
+    const dailyData = getDailyData();
 
-    browser.storage.local.get({ notes: {} }).then((data) => {
-      const notes = data.notes;
-      notes[videoId] = {
-        date: new Date().toISOString(),
-        url: window.location.href,
-        title: titre,
-        content: text
-      };
-      return browser.storage.local.set({ notes });
-    }).then(() => {
-      postit.remove();
-    });
-  });
+    // 2. Quota quotidien déjà atteint -> redirection
+    if (dailyData.count >= maxShortsPerDay) {
+      console.log("[ENEP-BERR] Quota quotidien atteint ! Redirection...");
+      window.location.href = "https://www.youtube.com/";
+      return;
+    }
+
+    // 3. Nouveau Short -> on l'ajoute au compteur du jour (une seule fois par URL)
+    if (lastCountedShort !== window.location.pathname) {
+      lastCountedShort = window.location.pathname;
+      const count = incrementDailyCount();
+      console.log(`[ENEP-BERR] Short vu ${count}/${maxShortsPerDay}`);
+
+      // Si ce Short nous fait dépasser le quota, on redirige tout de suite
+      if (count > maxShortsPerDay) {
+        window.location.href = "https://www.youtube.com/";
+        return;
+      }
+    }
+
+  } else {
+    lastCountedShort = null;
+  }
+
+  hideShortsForToday();
 }
 
-// --- Suivi des changements de page (YouTube est une SPA) ---
+// --- Initialisation ---
+loadSettings().then(() => {
+  startObserver();
+  hideShortsForToday();
 
-function onNavigation() {
-  reinitialiserPourNouvelleVideo();
-  attacherVideo();
-}
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", onUrlChange);
+  } else {
+    onUrlChange();
+  }
+});
 
-window.addEventListener('yt-navigate-finish', onNavigation);
-setInterval(attacherVideo, 1000); // filet de sécurité si le <video> est recréé sans déclencher l'event
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', onNavigation);
-} else {
-  onNavigation();
-}
+setInterval(checkUrlChange, 300);
+window.addEventListener("yt-navigate-finish", onUrlChange);

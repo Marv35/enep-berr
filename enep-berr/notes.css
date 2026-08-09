@@ -1,0 +1,103 @@
+/* Étend style.css : mêmes tokens (--bg-0, --accent, --glass, etc.) */
+
+.notes-stage {
+  align-items: flex-start;
+  padding-top: 8px;
+}
+
+.notes-panel {
+  position: relative;
+  z-index: 1;
+  width: min(560px, calc(100vw - 48px));
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 6px;
+}
+
+.notes-panel::-webkit-scrollbar { width: 8px; }
+.notes-panel::-webkit-scrollbar-thumb {
+  background: var(--accent-deep);
+  border-radius: 999px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 24px;
+  border-radius: 22px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  color: var(--text-lo);
+}
+.empty-state p:first-child {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--text-hi);
+  margin: 0 0 6px;
+}
+.empty-state .hint { margin: 0; font-size: 13px; }
+
+.notes-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.note-card {
+  position: relative;
+  padding: 16px 44px 14px 18px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, var(--glass-strong) 0%, var(--glass) 100%);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.note-card .note-title {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text-hi);
+  text-decoration: none;
+  margin-bottom: 2px;
+}
+.note-card .note-title:hover { color: var(--accent-bright); }
+
+.note-card .note-date {
+  display: block;
+  font-size: 11.5px;
+  color: var(--text-lo);
+  margin-bottom: 10px;
+}
+
+.note-card .note-content {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--text-hi);
+  white-space: pre-wrap;
+}
+
+.note-delete {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  background: rgba(3, 20, 15, 0.5);
+  color: var(--text-lo);
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+.note-delete:hover {
+  background: rgba(220, 70, 70, 0.85);
+  color: #fff;
+}
+.note-delete:active { transform: scale(0.92); }

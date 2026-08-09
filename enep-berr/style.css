@@ -355,6 +355,18 @@ body {
 .save-btn:active { transform: translateY(1px) scale(0.99); }
 .save-btn:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 3px; }
 
+.notes-link {
+  display: block;
+  margin-top: 14px;
+  text-align: center;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--accent-bright);
+  text-decoration: none;
+}
+.notes-link:hover { text-decoration: underline; }
+
 .status {
   min-height: 18px;
   margin: 14px 0 0;
