@@ -117,3 +117,6 @@ document.getElementById("saveBtn").addEventListener("click", () => {
     showStatus("Paramètres sauvegardés ✓");
   });
 });
+
+
+

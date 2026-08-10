@@ -1,10 +1,11 @@
 // Actif uniquement sur les vidéos YouTube classiques (/watch?v=...), jamais sur les Shorts
 
-const SECONDES_AVANT_FIN = 60;
+const SECONDES_AVANT_FIN = 120;
 
 let currentVideoId = null;
 let noteDejaProposee = false;
 let currentVideo = null;
+let dernierLogSeconde = null;
 
 function getVideoId() {
   const params = new URLSearchParams(window.location.search);
@@ -32,8 +33,10 @@ function reinitialiserPourNouvelleVideo() {
   if (videoId !== currentVideoId) {
     currentVideoId = videoId;
     noteDejaProposee = false;
+    dernierLogSeconde = null;
     detacherVideo();
     fermerPostit(); // au cas où un post-it de la vidéo précédente traînerait encore
+    console.log('[ENEP-BERR] Nouvelle vidéo détectée :', videoId);
   }
 }
 
@@ -42,12 +45,13 @@ function attacherVideo() {
     detacherVideo();
     return;
   }
-  const video = document.querySelector('video.html5-main-video') || document.querySelector('video');
+  const video = document.querySelector('#movie_player video') || document.querySelector('video');
   if (!video || video === currentVideo) return;
 
   detacherVideo();
   currentVideo = video;
   currentVideo.addEventListener('timeupdate', onTimeUpdate);
+  console.log('[ENEP-BERR] Vidéo accrochée, durée =', currentVideo.duration, 's');
 }
 
 function onTimeUpdate() {
@@ -58,8 +62,17 @@ function onTimeUpdate() {
   if (currentVideo.duration < SECONDES_AVANT_FIN + 10) return;
 
   const tempsRestant = currentVideo.duration - currentVideo.currentTime;
+
+  // Un log toutes les ~10s pour vérifier que le compte à rebours avance bien
+  const secondeArrondie = Math.floor(tempsRestant / 10) * 10;
+  if (secondeArrondie !== dernierLogSeconde && tempsRestant < 180) {
+    dernierLogSeconde = secondeArrondie;
+    console.log('[ENEP-BERR] Temps restant avant la fin :', Math.round(tempsRestant), 's');
+  }
+
   if (tempsRestant <= SECONDES_AVANT_FIN) {
     noteDejaProposee = true;
+    console.log('[ENEP-BERR] Déclenchement du post-it');
     afficherPostIt();
   }
 }

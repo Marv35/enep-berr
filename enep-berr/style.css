@@ -143,6 +143,8 @@ body {
     inset 0 -1px 0 rgba(0, 0, 0, 0.25);
 }
 
+.options-card { width: min(680px, calc(100vw - 48px)); }
+
 /* liseré chromé du haut, signature "aero" */
 .card::before {
   content: "";
@@ -151,6 +153,56 @@ body {
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.85), transparent);
   border-radius: 50%;
+}
+
+/* ---------- Deux colonnes : YouTube / Instagram ---------- */
+
+.columns {
+  display: flex;
+  align-items: stretch;
+  gap: 26px;
+}
+
+.platform-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.col-divider {
+  width: 1px;
+  align-self: stretch;
+  background: linear-gradient(180deg, transparent, var(--glass-border), transparent);
+}
+
+.col-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text-hi);
+}
+
+.col-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 11px;
+  color: #06231a;
+}
+.col-icon--yt { background: linear-gradient(180deg, #ff8a8a 0%, #e63946 100%); }
+.col-icon--ig { background: linear-gradient(135deg, #f6d365 0%, #e64a8f 50%, #833ab4 100%); }
+
+@media (max-width: 560px) {
+  .columns { flex-direction: column; gap: 26px; }
+  .col-divider { display: none; }
 }
 
 .drop-icon {

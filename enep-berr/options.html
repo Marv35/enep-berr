@@ -49,78 +49,97 @@
 
   <!-- Zone centrale : le panneau de réglages -->
   <div class="stage">
-    <main class="card" role="main">
+    <main class="card options-card" role="main">
 
-      <section class="field">
-        <label for="maxReels">
-          Reels max par jour
-          <span class="hint">Au-delà, la lecture te renvoie à l'accueil Instagram</span>
-        </label>
-        <div class="stepper">
-          <button type="button" class="step-btn" id="decReelsBtn" aria-label="Diminuer">−</button>
-          <input type="number" id="maxReels" min="1" max="100" inputmode="numeric">
-          <button type="button" class="step-btn" id="incReelsBtn" aria-label="Augmenter">+</button>
-        </div>
-      </section>
+      <div class="columns">
 
-      <div class="divider" aria-hidden="true"></div>
+        <section class="platform-col">
+          <h2 class="col-title">
+            <span class="col-icon col-icon--yt" aria-hidden="true">▶</span>
+            YouTube
+          </h2>
 
-      <section class="field">
-        <label for="maxShorts">
-          Shorts max par jour
-          <span class="hint">Au-delà, la lecture te renvoie à l'accueil YouTube</span>
-        </label>
-        <div class="stepper">
-          <button type="button" class="step-btn" id="decShortsBtn" aria-label="Diminuer">−</button>
-          <input type="number" id="maxShorts" min="1" max="100" inputmode="numeric">
-          <button type="button" class="step-btn" id="incShortsBtn" aria-label="Augmenter">+</button>
-        </div>
-      </section>
-
-      <div class="divider" aria-hidden="true"></div>
-
-      <section class="field toggle-field">
-        <div class="toggle-row">
-          <label for="blockShortsToggle">
-            Bloquer les Shorts entièrement
-            <span class="hint">Le nombre max ci-dessus est ignoré, les Shorts restent masqués partout</span>
-          </label>
-          <button type="button" id="blockShortsToggle" class="aero-switch" role="switch" aria-checked="false">
-            <span class="knob"></span>
-          </button>
-        </div>
-      </section>
-
-      <div class="divider" aria-hidden="true"></div>
-
-      <section class="field counters-field">
-        <label>
-          Compteurs du jour
-          <span class="hint">Pratique pour tester sans attendre le lendemain</span>
-        </label>
-
-        <div class="counter-row">
-          <div class="counter-info">
-            <span class="counter-label">Reels vus</span>
-            <span class="counter-value" id="reelsCounterValue">– / –</span>
+          <div class="field">
+            <label for="maxShorts">
+              Shorts max par jour
+              <span class="hint">Au-delà, la lecture te renvoie à l'accueil YouTube</span>
+            </label>
+            <div class="stepper">
+              <button type="button" class="step-btn" id="decShortsBtn" aria-label="Diminuer">−</button>
+              <input type="number" id="maxShorts" min="1" max="100" inputmode="numeric">
+              <button type="button" class="step-btn" id="incShortsBtn" aria-label="Augmenter">+</button>
+            </div>
           </div>
-          <button type="button" class="reset-btn" id="resetReelsBtn">Réinitialiser</button>
-        </div>
 
-        <div class="counter-row">
-          <div class="counter-info">
-            <span class="counter-label">Shorts vus</span>
-            <span class="counter-value" id="shortsCounterValue">– / –</span>
+          <div class="field toggle-field">
+            <div class="toggle-row">
+              <label for="blockShortsToggle">
+                Bloquer les Shorts entièrement
+                <span class="hint">Le nombre max ci-dessus est ignoré</span>
+              </label>
+              <button type="button" id="blockShortsToggle" class="aero-switch" role="switch" aria-checked="false">
+                <span class="knob"></span>
+              </button>
+            </div>
           </div>
-          <button type="button" class="reset-btn" id="resetShortsBtn">Réinitialiser</button>
-        </div>
-      </section>
+
+          <div class="field counters-field">
+            <label>
+              Compteur du jour
+              <span class="hint">Pratique pour tester sans attendre le lendemain</span>
+            </label>
+            <div class="counter-row">
+              <div class="counter-info">
+                <span class="counter-label">Shorts vus</span>
+                <span class="counter-value" id="shortsCounterValue">– / –</span>
+              </div>
+              <button type="button" class="reset-btn" id="resetShortsBtn">Réinitialiser</button>
+            </div>
+          </div>
+
+          <a href="notes.html" target="_blank" class="notes-link">Voir mes notes →</a>
+        </section>
+
+        <div class="col-divider" aria-hidden="true"></div>
+
+        <section class="platform-col">
+          <h2 class="col-title">
+            <span class="col-icon col-icon--ig" aria-hidden="true">◆</span>
+            Instagram
+          </h2>
+
+          <div class="field">
+            <label for="maxReels">
+              Reels max par jour
+              <span class="hint">Au-delà, la lecture te renvoie à l'accueil Instagram</span>
+            </label>
+            <div class="stepper">
+              <button type="button" class="step-btn" id="decReelsBtn" aria-label="Diminuer">−</button>
+              <input type="number" id="maxReels" min="1" max="100" inputmode="numeric">
+              <button type="button" class="step-btn" id="incReelsBtn" aria-label="Augmenter">+</button>
+            </div>
+          </div>
+
+          <div class="field counters-field">
+            <label>
+              Compteur du jour
+              <span class="hint">Pratique pour tester sans attendre le lendemain</span>
+            </label>
+            <div class="counter-row">
+              <div class="counter-info">
+                <span class="counter-label">Reels vus</span>
+                <span class="counter-value" id="reelsCounterValue">– / –</span>
+              </div>
+              <button type="button" class="reset-btn" id="resetReelsBtn">Réinitialiser</button>
+            </div>
+          </div>
+        </section>
+
+      </div>
 
       <button type="button" id="saveBtn" class="save-btn">
         <span>Enregistrer</span>
       </button>
-
-      <a href="notes.html" target="_blank" class="notes-link">Voir mes notes →</a>
 
       <p id="status" class="status" role="status" aria-live="polite"></p>
 
