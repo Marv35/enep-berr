@@ -57,6 +57,53 @@ blockToggle.addEventListener("click", () => {
   setToggle(next);
 });
 
+// --- Compteurs du jour + reset ---
+function getTodayDateString() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function normaliserJour(data) {
+  const today = getTodayDateString();
+  if (!data || data.date !== today) return { date: today, count: 0 };
+  return data;
+}
+
+function afficherCompteurs() {
+  browser.storage.local.get({
+    maxReels: DEFAULTS.maxReels,
+    maxShorts: DEFAULTS.maxShorts,
+    dailyReels: { date: getTodayDateString(), count: 0 },
+    dailyShorts: { date: getTodayDateString(), count: 0 }
+  }).then((result) => {
+    const reels = normaliserJour(result.dailyReels);
+    const shorts = normaliserJour(result.dailyShorts);
+    document.getElementById("reelsCounterValue").textContent = `${reels.count} / ${result.maxReels}`;
+    document.getElementById("shortsCounterValue").textContent = `${shorts.count} / ${result.maxShorts}`;
+  });
+}
+
+function reinitialiserCompteur(cle) {
+  const data = { date: getTodayDateString(), count: 0 };
+  browser.storage.local.set({ [cle]: data }).then(() => {
+    afficherCompteurs();
+    showStatus("Compteur remis à zéro ✓");
+  });
+}
+
+document.getElementById("resetReelsBtn").addEventListener("click", () => reinitialiserCompteur("dailyReels"));
+document.getElementById("resetShortsBtn").addEventListener("click", () => reinitialiserCompteur("dailyShorts"));
+
+document.addEventListener("DOMContentLoaded", afficherCompteurs);
+
+// Se met à jour aussi si les compteurs bougent pendant que la page est ouverte
+// (ex: tu regardes un Short dans un autre onglet)
+browser.storage.onChanged.addListener((changes, area) => {
+  if (area !== "local") return;
+  if (changes.dailyReels || changes.dailyShorts || changes.maxReels || changes.maxShorts) {
+    afficherCompteurs();
+  }
+});
+
 // Sauvegarder les réglages
 document.getElementById("saveBtn").addEventListener("click", () => {
   const maxReels = clamp(reelsInput, parseInt(reelsInput.value, 10));

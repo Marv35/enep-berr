@@ -1,70 +1,76 @@
-// CONFIGURATION INSTAGRAM
-const MAX_REELS_PER_SESSION = 6; 
-const MAX_SESSIONS_PER_DAY = 3;
+// --- RÉGLAGES (chargés depuis la page d'options, et relus en direct) ---
+const DEFAULT_MAX_REELS_PER_DAY = 10;
 
-// --- GESTION DU STOCKAGE QUOTIDIEN ---
+let maxReelsPerDay = DEFAULT_MAX_REELS_PER_DAY;
+let dailyReels = { date: getTodayDateString(), count: 0 };
+
 function getTodayDateString() {
   return new Date().toISOString().split('T')[0];
 }
 
-function getDailyData() {
+function normaliserJour(data) {
   const today = getTodayDateString();
-  let stored = {};
-  try {
-    stored = JSON.parse(localStorage.getItem('enep_daily_reels') || '{}');
-  } catch (e) {
-    stored = {};
+  if (!data || data.date !== today) {
+    return { date: today, count: 0 };
   }
-  
-  if (stored.date !== today) {
-    const newData = { date: today, sessionCount: 0 };
-    localStorage.setItem('enep_daily_reels', JSON.stringify(newData));
-    return newData;
-  }
-  return stored;
+  return data;
 }
 
-function incrementDailySession() {
-  const data = getDailyData();
-  data.sessionCount += 1;
-  localStorage.setItem('enep_daily_reels', JSON.stringify(data));
-  return data.sessionCount;
+function loadSettings() {
+  return browser.storage.local.get({
+    maxReels: DEFAULT_MAX_REELS_PER_DAY,
+    dailyReels: { date: getTodayDateString(), count: 0 }
+  }).then((result) => {
+    maxReelsPerDay = result.maxReels;
+    dailyReels = normaliserJour(result.dailyReels);
+  });
 }
+
+function sauvegarderCompteur() {
+  browser.storage.local.set({ dailyReels });
+}
+
+function incrementerCompteur() {
+  dailyReels = normaliserJour(dailyReels);
+  dailyReels.count += 1;
+  sauvegarderCompteur();
+  return dailyReels.count;
+}
+
+// Réagit immédiatement si les réglages OU les compteurs changent ailleurs
+browser.storage.onChanged.addListener((changes, area) => {
+  if (area !== "local") return;
+
+  if (changes.maxReels) {
+    maxReelsPerDay = changes.maxReels.newValue;
+  }
+  if (changes.dailyReels) {
+    dailyReels = normaliserJour(changes.dailyReels.newValue);
+  }
+  hideDistractions();
+});
 
 // --- MASQUAGE DES ÉLÉMENTS SUR INSTAGRAM ---
 function hideDistractions() {
   try {
-    const dailyData = getDailyData();
-    console.log("[ENEP-BERR DEBUG] Exécution de hideDistractions sur :", window.location.pathname);
+    dailyReels = normaliserJour(dailyReels);
+    const shouldHide = dailyReels.count >= maxReelsPerDay;
 
-    // 1. Test du masquage du bouton dans le menu
-    if (dailyData.sessionCount >= MAX_SESSIONS_PER_DAY) {
-      const links = document.querySelectorAll('a[href="/reels/"], a[href^="/reels/"]');
-      console.log(`[ENEP-BERR DEBUG] Boutons Reels trouvés : ${links.length}`);
-      links.forEach(link => {
-        const parent = link.closest('span') || link.parentElement;
-        if (parent) parent.style.display = 'none';
-      });
-    }
+    // 1. Masquage du bouton Reels dans le menu si quota atteint
+    const links = document.querySelectorAll('a[href="/reels/"], a[href^="/reels/"]');
+    links.forEach(link => {
+      const parent = link.closest('span') || link.parentElement;
+      if (parent) parent.style.display = shouldHide ? 'none' : '';
+    });
 
-    // 2. Test du masquage sur /explore/
+    // 2. Masquage systématique de la grille sur /explore/ (indépendant du quota)
     if (window.location.pathname.includes("/explore/")) {
-      const targetClass = ".x15mokao.x1ga7v0g.x16uus16.xbiv7yw.x5o85r1.xeo4mu6";
-      const elementsByClass = document.querySelectorAll(targetClass);
-      console.log(`[ENEP-BERR DEBUG] Éléments par classe trouvés sur Explore : ${elementsByClass.length}`);
-
       const exploreMain = document.querySelector('main[role="main"]');
-      console.log("[ENEP-BERR DEBUG] Balise <main> trouvée :", !!exploreMain);
-
       if (exploreMain) {
         const gridSection = exploreMain.querySelector('section');
-        console.log("[ENEP-BERR DEBUG] Section de grille trouvée :", !!gridSection);
-        if (gridSection) {
-          gridSection.style.display = 'none';
-        }
+        if (gridSection) gridSection.style.display = 'none';
       }
     }
-
   } catch (err) {
     console.error('[ENEP-BERR] Erreur masquage :', err);
   }
@@ -80,10 +86,9 @@ function startObserver() {
   }
 }
 
-// --- LOGIQUE DE NAVIGATION ET LIMITES ---
+// --- LOGIQUE BASÉE SUR L'URL ---
 let lastUrl = location.href;
-let reelsSeenInCurrentSession = 0;
-let isNewSession = true;
+let lastCountedReel = null; // évite de compter deux fois le même Reel
 
 function checkUrlChange() {
   const currentUrl = location.href;
@@ -94,52 +99,44 @@ function checkUrlChange() {
 }
 
 function onUrlChange() {
-  const dailyData = getDailyData();
-
-  // Si l'utilisateur est dans le flux Reels
   if (window.location.pathname.includes("/reel/") || window.location.pathname.includes("/reels/")) {
-    
-    // 1. Quota quotidien dépassé -> Redirection immédiate
-    if (dailyData.sessionCount >= MAX_SESSIONS_PER_DAY) {
+
+    dailyReels = normaliserJour(dailyReels);
+
+    if (dailyReels.count >= maxReelsPerDay) {
       console.log("[ENEP-BERR] Quota quotidien atteint ! Redirection...");
       window.location.href = "https://www.instagram.com/";
       return;
     }
 
-    // 2. Début d'une nouvelle session
-    if (isNewSession) {
-      isNewSession = false;
-      reelsSeenInCurrentSession = 0;
-      incrementDailySession();
-      console.log(`[ENEP-BERR] Session Reels démarrée (${getDailyData().sessionCount}/${MAX_SESSIONS_PER_DAY})`);
-    }
+    if (lastCountedReel !== window.location.pathname) {
+      lastCountedReel = window.location.pathname;
+      const count = incrementerCompteur();
+      console.log(`[ENEP-BERR] Reel vu ${count}/${maxReelsPerDay}`);
 
-    // 3. Compte du Reel vu
-    reelsSeenInCurrentSession++;
-    console.log(`[ENEP-BERR] Reel vu n°${reelsSeenInCurrentSession}/${MAX_REELS_PER_SESSION}`);
-
-    // 4. Redirection si la limite par session est dépassée (ex: + de 6 Reels)
-    if (reelsSeenInCurrentSession > MAX_REELS_PER_SESSION) {
-      console.log("[ENEP-BERR] Limite de session atteinte ! Redirection...");
-      window.location.href = "https://www.instagram.com/";
+      if (count > maxReelsPerDay) {
+        window.location.href = "https://www.instagram.com/";
+        return;
+      }
     }
 
   } else {
-    // Hors des Reels : réinitialisation de la session
-    isNewSession = true;
-    reelsSeenInCurrentSession = 0;
+    lastCountedReel = null;
   }
 
-  // Vérification systématique du masquage
   hideDistractions();
 }
 
-// Lancement
-startObserver();
-setInterval(checkUrlChange, 400);
+// --- Initialisation ---
+loadSettings().then(() => {
+  startObserver();
+  hideDistractions();
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", onUrlChange);
-} else {
-  onUrlChange();
-}
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", onUrlChange);
+  } else {
+    onUrlChange();
+  }
+});
+
+setInterval(checkUrlChange, 400);
