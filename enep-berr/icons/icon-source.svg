@@ -1,0 +1,27 @@
+<svg viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#12503a"/>
+      <stop offset="55%" stop-color="#0a2a20"/>
+      <stop offset="100%" stop-color="#051611"/>
+    </linearGradient>
+    <linearGradient id="dropFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#a8ffdd"/>
+      <stop offset="55%" stop-color="#33e6a0"/>
+      <stop offset="100%" stop-color="#0a7a52"/>
+    </linearGradient>
+    <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- fond arrondi façon bouton verre -->
+  <rect x="4" y="4" width="120" height="120" rx="28" fill="url(#bg)"/>
+  <rect x="4" y="4" width="120" height="120" rx="28" fill="none" stroke="rgba(178,255,220,0.35)" stroke-width="2"/>
+  <path d="M8 30 Q64 8 120 30 L120 44 Q64 24 8 44 Z" fill="url(#sheen)" opacity="0.5"/>
+
+  <!-- goutte -->
+  <path d="M64 22C64 22 34 62 34 84.5C34 104.16 47.6 118 64 118C80.4 118 94 104.16 94 84.5C94 62 64 22 64 22Z" fill="url(#dropFill)"/>
+  <ellipse cx="51" cy="72" rx="10.5" ry="17" fill="#ffffff" opacity="0.5"/>
+</svg>
