@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>ENEP-BERR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles/style.css">
+<link rel="stylesheet" href="/styles/popup.css">
+</head>
+<body>
+
+  <div class="popup">
+
+    <header class="popup-brand">
+      <span class="drop-icon" aria-hidden="true">
+        <svg viewBox="0 0 48 48" width="26" height="26">
+          <defs>
+            <linearGradient id="dropFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#a8ffdd"/>
+              <stop offset="55%" stop-color="#33e6a0"/>
+              <stop offset="100%" stop-color="#0a7a52"/>
+            </linearGradient>
+          </defs>
+          <path d="M24 3C24 3 9 21 9 31.5C9 40.06 15.94 46 24 46C32.06 46 39 40.06 39 31.5C39 21 24 3 24 3Z" fill="url(#dropFill)"/>
+          <ellipse cx="18.5" cy="24" rx="4.5" ry="7" fill="#ffffff" opacity="0.55"/>
+        </svg>
+      </span>
+      <h1>ENEP-BERR</h1>
+    </header>
+
+    <div class="popup-counter-row">
+      <span class="popup-platform-label">▶ YouTube Shorts</span>
+      <span class="popup-counter-value" id="shortsValue">– / –</span>
+    </div>
+
+    <div class="popup-counter-row">
+      <span class="popup-platform-label">◆ Instagram Reels</span>
+      <span class="popup-counter-value" id="reelsValue">– / –</span>
+    </div>
+
+    <div class="popup-toggle-row">
+      <span>Bloquer les Shorts</span>
+      <button type="button" id="blockShortsToggle" class="aero-switch" role="switch" aria-checked="false">
+        <span class="knob"></span>
+      </button>
+    </div>
+
+    <div class="popup-actions">
+      <button type="button" id="openOptionsBtn" class="popup-link-btn">⚙ Réglages</button>
+      <button type="button" id="openNotesBtn" class="popup-link-btn">📝 Mes notes</button>
+    </div>
+
+  </div>
+
+  <script src="/src/plateformes/popup/popup.js"></script>
+</body>
+</html>
